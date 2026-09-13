@@ -42,13 +42,40 @@ ext2 이미지 파일을 마운트하지 않고 직접 해석하는 읽기 전�
 
 `C` `Process Control` `POSIX Spawn` `Syntax Tree` `CSV` `Linked List`
 
+### [xv6 Lazy Allocation & Multi-level FS](./xv6-lazy-allocation-multilevel-fs)
+
+xv6의 가상 메모리를 지연 할당 방식으로 확장하고, inode의 블록 주소 체계를 다단계 구조로 재설계한 커널 프로젝트.
+
+- page fault 시점에 물리 페이지를 할당하는 lazy allocation
+- 가상·물리 메모리 사용량 조회를 위한 `ssualloc`, `getvp`, `getpp` 시스템 콜
+- 미할당 페이지를 고려한 `fork`, `copyout`, 메모리 해제 경로 보완
+- 6 direct, 4 single-indirect, 2 double-indirect, 1 triple-indirect 구조
+- 다단계 블록의 재귀 해제와 대용량 파일 경계 검증
+
+`C` `xv6` `Virtual Memory` `Page Fault` `System Call` `Inode` `Block Mapping`
+
+### [xv6 Continuous Sector FS](./xv6-continuous-sector-fs)
+
+연속된 디스크 블록을 하나의 extent로 표현하는 Continuous Sector 파일 형식을 xv6에 추가한 파일시스템 프로젝트.
+
+- `O_CS` 플래그와 `T_CS` inode 유형을 통한 일반 파일과의 공존
+- 시작 블록 24비트와 길이 8비트를 조합한 extent 인코딩
+- 연속 할당 시 extent 확장, 불연속 할당 시 새 entry 생성
+- CS 파일 전용 block mapping과 안전한 truncate·삭제 처리
+- inode와 direct entry 상태를 확인하는 `printinfo(fd)` 시스템 콜
+- 디스크 공간 부족 시 panic 대신 partial/short write 반환
+
+`C` `xv6` `Filesystem` `Extent` `Block Allocation` `Inode` `Error Handling`
+
 ## Repository Structure
 
 ```text
 LinuxSystem/
-├── ssu_cleanup/   # 데몬 기반 파일 정리
-├── ssu_ext2/      # ext2 이미지 분석
-└── ssu_score/     # 답안 자동 채점
+├── ssu_cleanup/                         # 데몬 기반 파일 정리
+├── ssu_ext2/                            # ext2 이미지 분석
+├── ssu_score/                           # 답안 자동 채점
+├── xv6-lazy-allocation-multilevel-fs/  # 지연 메모리 할당과 다단계 inode
+└── xv6-continuous-sector-fs/            # extent 기반 연속 블록 파일
 ```
 
 빌드·실행 방법과 명령어 옵션은 각 프로젝트 디렉터리의 `README.md` 참고.
@@ -59,5 +86,7 @@ LinuxSystem/
 - 프로세스·데몬·시그널 및 실행 시간 제어
 - 디렉터리 순회와 파일 메타데이터 처리
 - 파일시스템 온디스크 구조와 블록 주소 해석
+- page fault 기반 지연 메모리 할당과 페이지 테이블 관리
+- inode 다단계 주소 지정과 extent 기반 연속 블록 할당
 - 연결 리스트 기반 데이터 관리와 정렬
 - 경로·입력값·손상 데이터에 대한 예외 처리
